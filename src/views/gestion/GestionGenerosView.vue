@@ -1,85 +1,95 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import generoService, { Genero } from '@/api/generoService'
+import { ref, onMounted } from "vue";
+import generoService, { Genero } from "@/api/generoService";
 
 // Reutilizamos “CategoryTable” como tabla genérica
-import CategoryTable from '@/components/CategoryTable.vue'
-import TransparentCard from '@/components/TransparentCard.vue'
-import ModalAlert from '@/components/ModalAlert.vue'
+import CategoryTable from "@/components/CategoryTable.vue";
+import TransparentCard from "@/components/TransparentCard.vue";
+import ModalAlert from "@/components/ModalAlert.vue";
 
 /**
  * ESTADO PARA EL MODAL
  */
-const showModal = ref(false)
-const modalTitle = ref('')
-const modalMessage = ref('')
-const modalType = ref<'success' | 'danger' | 'warning' | 'info'>('info')
+const showModal = ref(false);
+const modalTitle = ref("");
+const modalMessage = ref("");
+const modalType = ref<"success" | "danger" | "warning" | "info">("info");
 
-function openModal(title: string, message: string, type: 'success' | 'danger' | 'warning' | 'info') {
-  modalTitle.value = title
-  modalMessage.value = message
-  modalType.value = type
-  showModal.value = true
+function openModal(
+  title: string,
+  message: string,
+  type: "success" | "danger" | "warning" | "info",
+) {
+  modalTitle.value = title;
+  modalMessage.value = message;
+  modalType.value = type;
+  showModal.value = true;
 }
 
 function handleClose() {
-  showModal.value = false
+  showModal.value = false;
 }
 
 /**
  * DEFINIMOS LAS COLUMNAS DE LA TABLA
- * 
- * Observa que “key: 'nombreGenero' as const” 
+ *
+ * Observa que “key: 'nombreGenero' as const”
  *  => coincide con “type GeneroKey = 'idGenero' | 'nombreGenero'”
  *    en el CategoryTable.vue
  */
 const columns = [
   {
-    key: 'nombreGenero' as const,
-    label: 'Nombre del Género',
-    type: 'string' as const,
+    key: "nombreGenero" as const,
+    label: "Nombre del Género",
+    type: "string" as const,
     sortable: true,
   },
-]
+];
 
 /**
  * FILAS => array de Genero
  */
-const rows = ref<Genero[]>([])
+const rows = ref<Genero[]>([]);
 
 /**
  * Para crear un nuevo género
  */
-const newGeneroName = ref('')
+const newGeneroName = ref("");
 
 /**
  * AL MONTAR => cargar la lista de géneros
  */
 onMounted(async () => {
   try {
-    const data = await generoService.getAll()
-    rows.value = data
+    const data = await generoService.getAll();
+    rows.value = data;
   } catch (error) {
-    openModal('Error', 'No se pudo obtener la lista de géneros.', 'danger')
+    openModal("Error", "No se pudo obtener la lista de géneros.", "danger");
   }
-})
+});
 
 /**
  * CREAR GÉNERO
  */
 async function addGenero() {
   if (!newGeneroName.value.trim()) {
-    openModal('Información Incompleta', 'Ingrese el nombre del género.', 'info')
-    return
+    openModal(
+      "Información Incompleta",
+      "Ingrese el nombre del género.",
+      "info",
+    );
+    return;
   }
 
   try {
-    const created = await generoService.create({ nombreGenero: newGeneroName.value })
-    rows.value.push(created)
-    newGeneroName.value = ''
-    openModal('¡Éxito!', 'Género creado correctamente.', 'success')
+    const created = await generoService.create({
+      nombreGenero: newGeneroName.value,
+    });
+    rows.value.push(created);
+    newGeneroName.value = "";
+    openModal("¡Éxito!", "Género creado correctamente.", "success");
   } catch (error) {
-    openModal('Error', 'No se pudo crear el género.', 'danger')
+    openModal("Error", "No se pudo crear el género.", "danger");
   }
 }
 
@@ -88,39 +98,41 @@ async function addGenero() {
  * => prompt sencillo
  */
 function handleModify(gen: Genero) {
-  const newName = prompt('Nuevo nombre del género:', gen.nombreGenero)
-  if (!newName || !newName.trim()) return
+  const newName = prompt("Nuevo nombre del género:", gen.nombreGenero);
+  if (!newName || !newName.trim()) return;
 
-  generoService.update(gen.idGenero, {
-    idGenero: gen.idGenero,
-    nombreGenero: newName,
-  })
+  generoService
+    .update(gen.idGenero, {
+      idGenero: gen.idGenero,
+      nombreGenero: newName,
+    })
     .then((updated) => {
       // actualiza rows
-      const idx = rows.value.findIndex((g) => g.idGenero === gen.idGenero)
-      if (idx !== -1) rows.value[idx] = updated
-      openModal('¡Éxito!', 'Género actualizado.', 'success')
+      const idx = rows.value.findIndex((g) => g.idGenero === gen.idGenero);
+      if (idx !== -1) rows.value[idx] = updated;
+      openModal("¡Éxito!", "Género actualizado.", "success");
     })
     .catch(() => {
-      openModal('Error', 'No se pudo actualizar el género.', 'danger')
-    })
+      openModal("Error", "No se pudo actualizar el género.", "danger");
+    });
 }
 
 /**
  * MANEJAR ELIMINAR
  */
 function handleDelete(gen: Genero) {
-  const confirmDelete = confirm(`¿Eliminar el género "${gen.nombreGenero}"?`)
-  if (!confirmDelete) return
+  const confirmDelete = confirm(`¿Eliminar el género "${gen.nombreGenero}"?`);
+  if (!confirmDelete) return;
 
-  generoService.remove(gen.idGenero)
+  generoService
+    .remove(gen.idGenero)
     .then(() => {
-      rows.value = rows.value.filter((g) => g.idGenero !== gen.idGenero)
-      openModal('¡Éxito!', 'Género eliminado.', 'success')
+      rows.value = rows.value.filter((g) => g.idGenero !== gen.idGenero);
+      openModal("¡Éxito!", "Género eliminado.", "success");
     })
     .catch(() => {
-      openModal('Error', 'No se pudo eliminar el género.', 'danger')
-    })
+      openModal("Error", "No se pudo eliminar el género.", "danger");
+    });
 }
 </script>
 
