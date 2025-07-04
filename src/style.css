@@ -1,0 +1,12 @@
+body {
+  font-family: "Courier", "Lucida Console", cursive, sans-serif !important;
+  background-image: url('@/assets/img/fondo.jpg');
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+.navbar-custom {
+  background: linear-gradient(to bottom, #f9d3fe, #d3fdfe) !important;
+}
