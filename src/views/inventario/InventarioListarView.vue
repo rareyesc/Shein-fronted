@@ -8,6 +8,14 @@ import colorService, { type Color } from '@/api/colorService'
 import tallaService, { type Talla } from '@/api/tallaService'
 import estadoService, { type Estado } from '@/api/estadoService'
 import pedidoService, { type Pedido } from '@/api/pedidoService'
+import categoryService from '@/api/categoryService'
+import subcategoriaService from '@/api/subcategoriaService'
+import generoService from '@/api/generoService'
+import colorService from '@/api/colorService'
+import tallaService from '@/api/tallaService'
+import estadoService from '@/api/estadoService'
+import pedidoService, { type Pedido } from '@/api/pedidoService'
+import pedidoService from '@/api/pedidoService'
 import TransparentCard from '@/components/TransparentCard.vue'
 import ProductCard from '@/components/ProductCard.vue'
 
@@ -19,6 +27,13 @@ const colores = ref<Color[]>([])
 const tallas = ref<Talla[]>([])
 const estados = ref<Estado[]>([])
 const pedidos = ref<Pedido[]>([])
+const categorias = ref<any[]>([])
+const subcategorias = ref<any[]>([])
+const generos = ref<any[]>([])
+const colores = ref<any[]>([])
+const tallas = ref<any[]>([])
+const estados = ref<any[]>([])
+const pedidos = ref<any[]>([])
 
 interface Filtros {
   idCategoria: number
@@ -31,6 +46,7 @@ interface Filtros {
 }
 
 const filtros = ref<Filtros>({
+const filtros = ref({
   idCategoria: 0,
   idSubcategoria: 0,
   idGenero: 0,
@@ -69,6 +85,7 @@ onMounted(async () => {
 
 const filteredProductos = computed(() => {
   return productos.value.filter((p: Producto) => {
+  return productos.value.filter((p) => {
     const f = filtros.value
     if (f.idCategoria && p.idCategoria !== f.idCategoria) return false
     if (f.idSubcategoria && p.idSubcategoria !== f.idSubcategoria) return false
@@ -146,6 +163,7 @@ const formatPedido = (p: Pedido) => {
             <option value="0">Todos los pedidos</option>
             <option v-for="ped in pedidos" :key="ped.idPedido" :value="ped.idPedido">
               {{ formatPedido(ped) }}
+              {{ ped.numeroPedido }}
             </option>
           </select>
         </div>
