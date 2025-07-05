@@ -21,6 +21,17 @@ const tallas = ref<any[]>([])
 const estados = ref<any[]>([])
 const pedidos = ref<any[]>([])
 
+interface Filtros {
+  idCategoria: number
+  idSubcategoria: number
+  idGenero: number
+  idColor: number
+  idTalla: number
+  idEstado: number
+  idPedido: number
+}
+
+const filtros = ref<Filtros>({
 const filtros = ref({
   idCategoria: 0,
   idSubcategoria: 0,
@@ -59,6 +70,7 @@ onMounted(async () => {
 })
 
 const filteredProductos = computed(() => {
+  return productos.value.filter((p: Producto) => {
   return productos.value.filter((p) => {
     const f = filtros.value
     if (f.idCategoria && p.idCategoria !== f.idCategoria) return false
