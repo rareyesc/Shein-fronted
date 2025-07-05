@@ -6,6 +6,7 @@ const { product } = defineProps<{ product: Producto }>()
 </script>
 
 <template>
+  <div class="card h-100 border">
   <div class="card h-100">
     <img
       v-if="product.imagen"
@@ -14,6 +15,7 @@ const { product } = defineProps<{ product: Producto }>()
       alt="Imagen del producto"
     />
     <div class="card-body">
+      <p class="card-text mb-0">{{ product.sku }}</p>
       <h5 class="card-title">{{ product.nombreProducto }}</h5>
       <p class="card-text text-muted">{{ product.descripcion }}</p>
       <p class="card-text"><strong>SKU:</strong> {{ product.sku }}</p>
@@ -26,6 +28,8 @@ const { product } = defineProps<{ product: Producto }>()
 
 <style scoped>
 .card-img-top {
+  object-fit: contain;
+  width: 100%;
   object-fit: cover;
   height: 200px;
 }

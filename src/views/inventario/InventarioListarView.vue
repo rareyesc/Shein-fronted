@@ -7,6 +7,7 @@ import generoService from '@/api/generoService'
 import colorService from '@/api/colorService'
 import tallaService from '@/api/tallaService'
 import estadoService from '@/api/estadoService'
+import pedidoService, { type Pedido } from '@/api/pedidoService'
 import pedidoService from '@/api/pedidoService'
 import TransparentCard from '@/components/TransparentCard.vue'
 import ProductCard from '@/components/ProductCard.vue'
@@ -70,6 +71,11 @@ const filteredProductos = computed(() => {
     return true
   })
 })
+
+const formatPedido = (p: Pedido) => {
+  const fecha = new Date(p.fechaPedido).toLocaleDateString('es-ES')
+  return `${fecha} - ${p.numeroPedido}`
+}
 </script>
 
 <template>
@@ -130,6 +136,7 @@ const filteredProductos = computed(() => {
           <select class="form-select" v-model.number="filtros.idPedido">
             <option value="0">Todos los pedidos</option>
             <option v-for="ped in pedidos" :key="ped.idPedido" :value="ped.idPedido">
+              {{ formatPedido(ped) }}
               {{ ped.numeroPedido }}
             </option>
           </select>
