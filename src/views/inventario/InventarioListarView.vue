@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import productoService, { type Producto } from '@/api/productoService'
+import categoryService, { type Categoria } from '@/api/categoryService'
+import subcategoriaService, { type Subcategoria } from '@/api/subcategoriaService'
+import generoService, { type Genero } from '@/api/generoService'
+import colorService, { type Color } from '@/api/colorService'
+import tallaService, { type Talla } from '@/api/tallaService'
+import estadoService, { type Estado } from '@/api/estadoService'
+import pedidoService, { type Pedido } from '@/api/pedidoService'
 import categoryService from '@/api/categoryService'
 import subcategoriaService from '@/api/subcategoriaService'
 import generoService from '@/api/generoService'
@@ -13,6 +20,13 @@ import TransparentCard from '@/components/TransparentCard.vue'
 import ProductCard from '@/components/ProductCard.vue'
 
 const productos = ref<Producto[]>([])
+const categorias = ref<Categoria[]>([])
+const subcategorias = ref<Subcategoria[]>([])
+const generos = ref<Genero[]>([])
+const colores = ref<Color[]>([])
+const tallas = ref<Talla[]>([])
+const estados = ref<Estado[]>([])
+const pedidos = ref<Pedido[]>([])
 const categorias = ref<any[]>([])
 const subcategorias = ref<any[]>([])
 const generos = ref<any[]>([])
