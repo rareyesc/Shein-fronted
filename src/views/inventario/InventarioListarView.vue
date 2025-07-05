@@ -84,6 +84,17 @@ onMounted(async () => {
 })
 
 const filteredProductos = computed(() => {
+  const f = filtros.value
+  return productos.value.filter(
+    (p: Producto) =>
+      (!f.idCategoria || p.idCategoria === f.idCategoria) &&
+      (!f.idSubcategoria || p.idSubcategoria === f.idSubcategoria) &&
+      (!f.idGenero || p.idGenero === f.idGenero) &&
+      (!f.idColor || p.idColor === f.idColor) &&
+      (!f.idTalla || p.idTalla === f.idTalla) &&
+      (!f.idEstado || p.idEstado === f.idEstado) &&
+      (!f.idPedido || p.idPedido === f.idPedido)
+  )
   return productos.value.filter((p: Producto) => {
   return productos.value.filter((p) => {
     const f = filtros.value
