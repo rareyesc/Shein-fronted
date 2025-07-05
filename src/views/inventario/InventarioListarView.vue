@@ -8,6 +8,7 @@ import colorService from '@/api/colorService'
 import tallaService from '@/api/tallaService'
 import estadoService from '@/api/estadoService'
 import pedidoService, { type Pedido } from '@/api/pedidoService'
+import pedidoService from '@/api/pedidoService'
 import TransparentCard from '@/components/TransparentCard.vue'
 import ProductCard from '@/components/ProductCard.vue'
 
@@ -136,6 +137,7 @@ const formatPedido = (p: Pedido) => {
             <option value="0">Todos los pedidos</option>
             <option v-for="ped in pedidos" :key="ped.idPedido" :value="ped.idPedido">
               {{ formatPedido(ped) }}
+              {{ ped.numeroPedido }}
             </option>
           </select>
         </div>

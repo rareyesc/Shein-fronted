@@ -7,6 +7,7 @@ const { product } = defineProps<{ product: Producto }>()
 
 <template>
   <div class="card h-100 border">
+  <div class="card h-100">
     <img
       v-if="product.imagen"
       :src="product.imagen"
@@ -15,6 +16,9 @@ const { product } = defineProps<{ product: Producto }>()
     />
     <div class="card-body">
       <p class="card-text mb-0">{{ product.sku }}</p>
+      <h5 class="card-title">{{ product.nombreProducto }}</h5>
+      <p class="card-text text-muted">{{ product.descripcion }}</p>
+      <p class="card-text"><strong>SKU:</strong> {{ product.sku }}</p>
       <p class="card-text mb-0"><strong>Precio compra:</strong> {{ product.precioCompra }}</p>
       <p class="card-text mb-0"><strong>Precio sin descuento:</strong> {{ product.precioSinDescuento }}</p>
       <p class="card-text"><strong>Precio venta:</strong> {{ product.precioVenta }}</p>
@@ -26,6 +30,7 @@ const { product } = defineProps<{ product: Producto }>()
 .card-img-top {
   object-fit: contain;
   width: 100%;
+  object-fit: cover;
   height: 200px;
 }
 </style>
