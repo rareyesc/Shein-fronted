@@ -59,6 +59,11 @@
                   Agregar Producto
                 </router-link>
               </li>
+              <li>
+                <router-link class="dropdown-item" to="/inventario/pedidos">
+                  Gestionar Pedidos
+                </router-link>
+              </li>
             </ul>
           </li>
           <!-- Nueva sección: Gestión -->
