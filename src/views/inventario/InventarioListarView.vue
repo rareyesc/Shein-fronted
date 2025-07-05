@@ -8,14 +8,6 @@ import colorService, { type Color } from '@/api/colorService'
 import tallaService, { type Talla } from '@/api/tallaService'
 import estadoService, { type Estado } from '@/api/estadoService'
 import pedidoService, { type Pedido } from '@/api/pedidoService'
-import categoryService from '@/api/categoryService'
-import subcategoriaService from '@/api/subcategoriaService'
-import generoService from '@/api/generoService'
-import colorService from '@/api/colorService'
-import tallaService from '@/api/tallaService'
-import estadoService from '@/api/estadoService'
-import pedidoService, { type Pedido } from '@/api/pedidoService'
-import pedidoService from '@/api/pedidoService'
 import TransparentCard from '@/components/TransparentCard.vue'
 import ProductCard from '@/components/ProductCard.vue'
 
@@ -27,25 +19,7 @@ const colores = ref<Color[]>([])
 const tallas = ref<Talla[]>([])
 const estados = ref<Estado[]>([])
 const pedidos = ref<Pedido[]>([])
-const categorias = ref<any[]>([])
-const subcategorias = ref<any[]>([])
-const generos = ref<any[]>([])
-const colores = ref<any[]>([])
-const tallas = ref<any[]>([])
-const estados = ref<any[]>([])
-const pedidos = ref<any[]>([])
 
-interface Filtros {
-  idCategoria: number
-  idSubcategoria: number
-  idGenero: number
-  idColor: number
-  idTalla: number
-  idEstado: number
-  idPedido: number
-}
-
-const filtros = ref<Filtros>({
 const filtros = ref({
   idCategoria: 0,
   idSubcategoria: 0,
@@ -95,18 +69,6 @@ const filteredProductos = computed(() => {
       (!f.idEstado || p.idEstado === f.idEstado) &&
       (!f.idPedido || p.idPedido === f.idPedido)
   )
-  return productos.value.filter((p: Producto) => {
-  return productos.value.filter((p) => {
-    const f = filtros.value
-    if (f.idCategoria && p.idCategoria !== f.idCategoria) return false
-    if (f.idSubcategoria && p.idSubcategoria !== f.idSubcategoria) return false
-    if (f.idGenero && p.idGenero !== f.idGenero) return false
-    if (f.idColor && p.idColor !== f.idColor) return false
-    if (f.idTalla && p.idTalla !== f.idTalla) return false
-    if (f.idEstado && p.idEstado !== f.idEstado) return false
-    if (f.idPedido && p.idPedido !== f.idPedido) return false
-    return true
-  })
 })
 
 const formatPedido = (p: Pedido) => {
@@ -174,7 +136,6 @@ const formatPedido = (p: Pedido) => {
             <option value="0">Todos los pedidos</option>
             <option v-for="ped in pedidos" :key="ped.idPedido" :value="ped.idPedido">
               {{ formatPedido(ped) }}
-              {{ ped.numeroPedido }}
             </option>
           </select>
         </div>
