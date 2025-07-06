@@ -7,6 +7,33 @@ import CategoryTable from '@/components/CategoryTable.vue'
 import TransparentCard from '@/components/TransparentCard.vue'
 import ModalAlert from '@/components/ModalAlert.vue'
 
+interface PedidoRow {
+  idPedido: number
+  numeroPedido: string
+  fechaPedido: string
+  fechaLlegada?: string
+  totalPedido?: string
+  nota?: string
+  idCorreoPedido: number
+  correoNombre: string
+}
+
+function formatDate(d: string | Date | undefined) {
+  if (!d) return ''
+  const dateObj = typeof d === 'string' ? new Date(d) : d
+  if (Number.isNaN(dateObj.getTime())) return ''
+  return dateObj.toISOString().slice(0, 10)
+}
+
+function formatCurrency(n?: number) {
+  if (n === undefined || n === null) return ''
+  return new Intl.NumberFormat('es-CO', {
+    style: 'currency',
+    currency: 'COP',
+    minimumFractionDigits: 0,
+  }).format(n)
+}
+
 interface PedidoRow extends Pedido {
   correoNombre: string
 }
@@ -35,6 +62,7 @@ const columns = [
   { key: 'numeroPedido' as const, label: 'Número', type: 'string' as const, sortable: true },
   { key: 'fechaPedido' as const, label: 'Fecha Pedido', type: 'date' as const, sortable: true },
   { key: 'fechaLlegada' as const, label: 'Fecha Llegada', type: 'date' as const, sortable: true },
+  { key: 'totalPedido' as const, label: 'Precio Pedido', type: 'string' as const, sortable: true },
   { key: 'totalPedido' as const, label: 'Total', type: 'number' as const, sortable: true },
   { key: 'nota' as const, label: 'Nota', type: 'string' as const },
   { key: 'correoNombre' as const, label: 'Correo', type: 'string' as const, sortable: true },
@@ -61,6 +89,9 @@ onMounted(async () => {
     correos.value = correosData
     rows.value = pedidosData.map((p) => ({
       ...p,
+      fechaPedido: formatDate(p.fechaPedido),
+      fechaLlegada: formatDate(p.fechaLlegada),
+      totalPedido: p.totalPedido ? formatCurrency(p.totalPedido) : '',
       correoNombre:
         correosData.find((c) => c.idCorreoPedido === p.idCorreoPedido)?.nombreCorreoPedido || '',
     }))
@@ -72,6 +103,28 @@ onMounted(async () => {
 async function addPedido() {
   if (!newPedido.value.numeroPedido.trim() || !newPedido.value.fechaPedido) {
     openModal('Información Incompleta', 'Complete los datos obligatorios.', 'info')
+    return
+  }
+
+  if (!/^\d+$/.test(newPedido.value.numeroPedido)) {
+    openModal('Error', 'El número de pedido debe ser numérico.', 'danger')
+    return
+  }
+
+  if (newPedido.value.totalPedido < 0) {
+    openModal('Error', 'El precio no puede ser negativo.', 'danger')
+    return
+  }
+
+  if (
+    newPedido.value.fechaLlegada &&
+    new Date(newPedido.value.fechaLlegada) < new Date(newPedido.value.fechaPedido)
+  ) {
+    openModal(
+      'Error',
+      'La fecha de llegada no puede ser anterior a la del pedido.',
+      'danger',
+    )
     return
   }
 
@@ -90,6 +143,9 @@ async function addPedido() {
     const created = await pedidoService.create({ pedido: pedidoPayload, productos: [] })
     rows.value.push({
       ...created,
+      fechaPedido: formatDate(created.fechaPedido),
+      fechaLlegada: formatDate(created.fechaLlegada),
+      totalPedido: created.totalPedido ? formatCurrency(created.totalPedido) : '',
       correoNombre:
         correos.value.find((c) => c.idCorreoPedido === created.idCorreoPedido)?.nombreCorreoPedido || '',
     })
@@ -117,6 +173,7 @@ function handleModify(ped: PedidoRow) {
     'Fecha llegada (YYYY-MM-DD):',
     ped.fechaLlegada ? new Date(ped.fechaLlegada).toISOString().slice(0, 10) : '',
   )
+  const totalStr = prompt('Precio del pedido:', ped.totalPedido ? ped.totalPedido.replace(/\D/g, '') : '')
   const totalStr = prompt('Total del pedido:', ped.totalPedido?.toString() || '0')
   const nota = prompt('Nota:', ped.nota ?? '') || ''
   const correoIdStr = prompt('ID del correo pedido:', ped.idCorreoPedido.toString())
@@ -131,6 +188,24 @@ function handleModify(ped: PedidoRow) {
     idCorreoPedido: correoIdStr ? parseInt(correoIdStr) : ped.idCorreoPedido,
   }
 
+  if (!/^\d+$/.test(payload.numeroPedido)) {
+    openModal('Error', 'El número de pedido debe ser numérico.', 'danger')
+    return
+  }
+
+  if (payload.totalPedido !== undefined && payload.totalPedido < 0) {
+    openModal('Error', 'El precio no puede ser negativo.', 'danger')
+    return
+  }
+
+  if (
+    payload.fechaLlegada &&
+    payload.fechaLlegada < payload.fechaPedido
+  ) {
+    openModal('Error', 'La fecha de llegada no puede ser anterior a la del pedido.', 'danger')
+    return
+  }
+
   pedidoService
     .update(ped.idPedido, { pedido: payload, productos: [] })
     .then((updated) => {
@@ -138,6 +213,9 @@ function handleModify(ped: PedidoRow) {
       if (idx !== -1) {
         rows.value[idx] = {
           ...updated,
+          fechaPedido: formatDate(updated.fechaPedido),
+          fechaLlegada: formatDate(updated.fechaLlegada),
+          totalPedido: updated.totalPedido ? formatCurrency(updated.totalPedido) : '',
           correoNombre:
             correos.value.find((c) => c.idCorreoPedido === updated.idCorreoPedido)?.nombreCorreoPedido || '',
         }
@@ -174,6 +252,41 @@ function handleDelete(ped: PedidoRow) {
         <h4>Agregar Nuevo Pedido</h4>
         <form @submit.prevent="addPedido" class="row g-3">
           <div class="col-md-4">
+            <label class="form-label">Número de Pedido</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Número de pedido"
+              v-model="newPedido.numeroPedido"
+              pattern="^\d+$"
+              required
+            />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Fecha Pedido</label>
+            <input type="date" class="form-control" v-model="newPedido.fechaPedido" required />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Fecha Llegada</label>
+            <input type="date" class="form-control" v-model="newPedido.fechaLlegada" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Precio Pedido</label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              class="form-control"
+              placeholder="Precio del pedido"
+              v-model.number="newPedido.totalPedido"
+            />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Nota</label>
+            <input type="text" class="form-control" placeholder="Nota" v-model="newPedido.nota" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Correo Pedido</label>
             <input type="text" class="form-control" placeholder="Número" v-model="newPedido.numeroPedido" required />
           </div>
           <div class="col-md-4">
