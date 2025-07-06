@@ -34,6 +34,10 @@ function formatCurrency(n?: number) {
   }).format(n)
 }
 
+interface PedidoRow extends Pedido {
+  correoNombre: string
+}
+
 const showModal = ref(false)
 const modalTitle = ref('')
 const modalMessage = ref('')
@@ -59,6 +63,7 @@ const columns = [
   { key: 'fechaPedido' as const, label: 'Fecha Pedido', type: 'date' as const, sortable: true },
   { key: 'fechaLlegada' as const, label: 'Fecha Llegada', type: 'date' as const, sortable: true },
   { key: 'totalPedido' as const, label: 'Precio Pedido', type: 'string' as const, sortable: true },
+  { key: 'totalPedido' as const, label: 'Total', type: 'number' as const, sortable: true },
   { key: 'nota' as const, label: 'Nota', type: 'string' as const },
   { key: 'correoNombre' as const, label: 'Correo', type: 'string' as const, sortable: true },
 ]
@@ -169,6 +174,7 @@ function handleModify(ped: PedidoRow) {
     ped.fechaLlegada ? new Date(ped.fechaLlegada).toISOString().slice(0, 10) : '',
   )
   const totalStr = prompt('Precio del pedido:', ped.totalPedido ? ped.totalPedido.replace(/\D/g, '') : '')
+  const totalStr = prompt('Total del pedido:', ped.totalPedido?.toString() || '0')
   const nota = prompt('Nota:', ped.nota ?? '') || ''
   const correoIdStr = prompt('ID del correo pedido:', ped.idCorreoPedido.toString())
 
@@ -281,6 +287,21 @@ function handleDelete(ped: PedidoRow) {
           </div>
           <div class="col-md-4">
             <label class="form-label">Correo Pedido</label>
+            <input type="text" class="form-control" placeholder="Número" v-model="newPedido.numeroPedido" required />
+          </div>
+          <div class="col-md-4">
+            <input type="date" class="form-control" v-model="newPedido.fechaPedido" required />
+          </div>
+          <div class="col-md-4">
+            <input type="date" class="form-control" v-model="newPedido.fechaLlegada" />
+          </div>
+          <div class="col-md-4">
+            <input type="number" step="0.01" class="form-control" placeholder="Total" v-model.number="newPedido.totalPedido" />
+          </div>
+          <div class="col-md-4">
+            <input type="text" class="form-control" placeholder="Nota" v-model="newPedido.nota" />
+          </div>
+          <div class="col-md-4">
             <select class="form-select" v-model.number="newPedido.idCorreoPedido" required>
               <option value="0" disabled>Seleccione un correo</option>
               <option v-for="c in correos" :key="c.idCorreoPedido" :value="c.idCorreoPedido">{{ c.nombreCorreoPedido }}</option>
