@@ -22,6 +22,15 @@ function formatDate(d: string | Date | undefined) {
   if (!d) return ''
   const dateObj = typeof d === 'string' ? new Date(d) : d
   if (Number.isNaN(dateObj.getTime())) return ''
+  const day = String(dateObj.getDate()).padStart(2, '0')
+  const month = String(dateObj.getMonth() + 1).padStart(2, '0')
+  const year = dateObj.getFullYear()
+  return `${day}-${month}-${year}`
+}
+
+function parseDate(str: string) {
+  const [day, month, year] = str.split('-').map(Number)
+  return new Date(year, month - 1, day)
   return dateObj.toISOString().slice(0, 10)
 }
 
@@ -164,6 +173,26 @@ async function addPedido() {
 }
 
 function handleModify(ped: PedidoRow) {
+  const totalStr = prompt(
+    'Nuevo precio del pedido:',
+    ped.totalPedido ? ped.totalPedido.replace(/\D/g, '') : '',
+  )
+  if (totalStr === null) return
+
+  const total = parseFloat(totalStr)
+  if (Number.isNaN(total) || total < 0) {
+    openModal('Error', 'Debe ingresar un precio válido y no negativo.', 'danger')
+    return
+  }
+
+  const payload: Pedido = {
+    idPedido: ped.idPedido,
+    numeroPedido: ped.numeroPedido,
+    fechaPedido: parseDate(ped.fechaPedido),
+    fechaLlegada: ped.fechaLlegada ? parseDate(ped.fechaLlegada) : undefined,
+    totalPedido: total,
+    nota: ped.nota,
+    idCorreoPedido: ped.idCorreoPedido,
   const numero = prompt('Número del pedido:', ped.numeroPedido) || ped.numeroPedido
   const fecha = prompt(
     'Fecha del pedido (YYYY-MM-DD):',
@@ -208,6 +237,12 @@ function handleModify(ped: PedidoRow) {
 
   pedidoService
     .update(ped.idPedido, { pedido: payload, productos: [] })
+    .then(() => {
+      const idx = rows.value.findIndex((p) => p.idPedido === ped.idPedido)
+      if (idx !== -1) {
+        rows.value[idx].totalPedido = formatCurrency(total)
+      }
+      openModal('¡Éxito!', 'Precio actualizado.', 'success')
     .then((updated) => {
       const idx = rows.value.findIndex((p) => p.idPedido === ped.idPedido)
       if (idx !== -1) {
