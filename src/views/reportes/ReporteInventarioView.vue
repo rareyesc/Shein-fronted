@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import * as XLSX from 'xlsx'
 import productoService, { type Producto } from '@/api/productoService'
 import categoryService, { type Categoria } from '@/api/categoryService'
@@ -10,9 +10,6 @@ import tallaService, { type Talla } from '@/api/tallaService'
 import estadoService, { type Estado } from '@/api/estadoService'
 import pedidoService, { type Pedido } from '@/api/pedidoService'
 import correoPedidoService, { type CorreoPedido } from '@/api/correoPedidoService'
-import { ref, onMounted } from 'vue'
-import * as XLSX from 'xlsx'
-import productoService, { type Producto } from '@/api/productoService'
 import TransparentCard from '@/components/TransparentCard.vue'
 import CategoryTable from '@/components/CategoryTable.vue'
 
@@ -53,13 +50,14 @@ const pedidos = ref<Pedido[]>([])
 const correos = ref<CorreoPedido[]>([])
 
 interface InventarioRow {
+  idProducto: number
+  nombreProducto: string
+  descripcion?: string
   sku?: string
-  nombre: string
+  imagen?: string
   precioCompra: string
   precioSinDescuento?: string
   precioVenta: string
-  fechaCreacion?: string
-  fechaActualizacion?: string
   categoria: string
   subcategoria: string
   genero: string
@@ -74,69 +72,15 @@ interface InventarioRow {
 
 const inventarioRows = ref<InventarioRow[]>([])
 
-interface VentaRow {
-  sku?: string
-  nombre: string
-  fechaVenta: string
-  precioCompra: string
-  precioVenta: string
-  ganancia: string
-}
-
-const fechaInicio = ref('')
-const fechaFin = ref('')
-
-const ventasRows = computed<VentaRow[]>(() => {
-  return inventario.value
-    .filter(p => {
-      if (!p.fechaActualizacion) return false
-      const f = new Date(p.fechaActualizacion)
-      if (fechaInicio.value && f < new Date(fechaInicio.value)) return false
-      if (fechaFin.value && f > new Date(fechaFin.value)) return false
-      return true
-    })
-    .map(p => ({
-      sku: p.sku,
-      nombre: p.nombreProducto,
-      fechaVenta: formatDate(p.fechaActualizacion),
-      precioCompra: formatCurrency(p.precioCompra),
-      precioVenta: formatCurrency(p.precioVenta),
-      ganancia: formatCurrency(p.precioVenta - p.precioCompra),
-    }))
-})
-
-const ventaColumns: ColumnDef[] = [
-  { key: 'sku', label: 'SKU', type: 'string', sortable: true },
-  { key: 'nombre', label: 'Nombre', type: 'string', sortable: true },
-  { key: 'fechaVenta', label: 'Fecha Venta', type: 'date', sortable: true },
-  { key: 'precioCompra', label: 'Precio Compra', type: 'string' },
-  { key: 'precioVenta', label: 'Precio Venta', type: 'string' },
-  { key: 'ganancia', label: 'Ganancia', type: 'string' },
-]
-
-function exportVentas() {
-  const data = ventasRows.value.map(v => ({
-    SKU: v.sku,
-    Nombre: v.nombre,
-    FechaVenta: v.fechaVenta,
-    PrecioCompra: v.precioCompra,
-    PrecioVenta: v.precioVenta,
-    Ganancia: v.ganancia,
-  }))
-  const ws = XLSX.utils.json_to_sheet(data)
-  const wb = XLSX.utils.book_new()
-  XLSX.utils.book_append_sheet(wb, ws, 'Ventas')
-  XLSX.writeFile(wb, 'ventas.xlsx')
-}
-
 const productColumns: ColumnDef[] = [
+  { key: 'idProducto', label: 'ID', type: 'number', sortable: true },
+  { key: 'nombreProducto', label: 'Nombre', type: 'string', sortable: true },
+  { key: 'descripcion', label: 'Descripción', type: 'string' },
   { key: 'sku', label: 'SKU', type: 'string', sortable: true },
-  { key: 'nombre', label: 'Nombre', type: 'string', sortable: true },
+  { key: 'imagen', label: 'Imagen', type: 'string' },
   { key: 'precioCompra', label: 'Precio Compra', type: 'string', sortable: true },
   { key: 'precioSinDescuento', label: 'Sin Descuento', type: 'string' },
   { key: 'precioVenta', label: 'Precio Venta', type: 'string', sortable: true },
-  { key: 'fechaCreacion', label: 'Creación', type: 'date', sortable: true },
-  { key: 'fechaActualizacion', label: 'Actualización', type: 'date', sortable: true },
   { key: 'categoria', label: 'Categoría', type: 'string', sortable: true },
   { key: 'subcategoria', label: 'Subcategoría', type: 'string', sortable: true },
   { key: 'genero', label: 'Género', type: 'string', sortable: true },
@@ -147,14 +91,6 @@ const productColumns: ColumnDef[] = [
   { key: 'fechaPedido', label: 'Fecha Pedido', type: 'date', sortable: true },
   { key: 'fechaLlegada', label: 'Fecha Llegada', type: 'date', sortable: true },
   { key: 'correoPedido', label: 'Correo', type: 'string', sortable: true },
-const inventario = ref<Producto[]>([])
-
-const productColumns: ColumnDef[] = [
-  { key: 'sku', label: 'SKU', type: 'string', sortable: true },
-  { key: 'nombreProducto', label: 'Nombre', type: 'string', sortable: true },
-  { key: 'precioCompra', label: 'Precio Compra', type: 'number' },
-  { key: 'precioVenta', label: 'Precio Venta', type: 'number' },
-  { key: 'idEstado', label: 'Estado', type: 'number' },
 ]
 
 onMounted(async () => {
@@ -198,13 +134,14 @@ onMounted(async () => {
       const ped = p.idPedido ? pedMap[p.idPedido] : undefined
       const correoName = ped ? mailMap[ped.idCorreoPedido] || '' : ''
       return {
+        idProducto: p.idProducto,
+        nombreProducto: p.nombreProducto,
+        descripcion: p.descripcion,
         sku: p.sku,
-        nombre: p.nombreProducto,
+        imagen: p.imagen,
         precioCompra: formatCurrency(p.precioCompra),
         precioSinDescuento: p.precioSinDescuento != null ? formatCurrency(p.precioSinDescuento) : '',
         precioVenta: formatCurrency(p.precioVenta),
-        fechaCreacion: formatDate(p.fechaCreacion),
-        fechaActualizacion: formatDate(p.fechaActualizacion),
         categoria: catMap[p.idCategoria] || '',
         subcategoria: subMap[p.idSubcategoria] || '',
         genero: genMap[p.idGenero] || '',
@@ -217,7 +154,6 @@ onMounted(async () => {
         correoPedido: correoName,
       }
     })
-    inventario.value = await productoService.getAll()
   } catch (error) {
     console.error(error)
     alert('Error al cargar inventario')
@@ -226,13 +162,14 @@ onMounted(async () => {
 
 function exportInventario() {
   const data = inventarioRows.value.map(r => ({
+    ID: r.idProducto,
+    Nombre: r.nombreProducto,
+    Descripcion: r.descripcion,
     SKU: r.sku,
-    Nombre: r.nombre,
+    Imagen: r.imagen,
     PrecioCompra: r.precioCompra,
     SinDescuento: r.precioSinDescuento,
     PrecioVenta: r.precioVenta,
-    Creacion: r.fechaCreacion,
-    Actualizacion: r.fechaActualizacion,
     Categoria: r.categoria,
     Subcategoria: r.subcategoria,
     Genero: r.genero,
@@ -243,12 +180,6 @@ function exportInventario() {
     FechaPedido: r.fechaPedido,
     FechaLlegada: r.fechaLlegada,
     Correo: r.correoPedido,
-  const data = inventario.value.map(p => ({
-    SKU: p.sku,
-    Nombre: p.nombreProducto,
-    PrecioCompra: p.precioCompra,
-    PrecioVenta: p.precioVenta,
-    Estado: p.idEstado,
   }))
   const ws = XLSX.utils.json_to_sheet(data)
   const wb = XLSX.utils.book_new()
@@ -259,32 +190,12 @@ function exportInventario() {
 
 <template>
   <div class="container mt-4">
-    <h1 class="mb-4">Reportes</h1>
+    <h1 class="mb-4">Reporte Inventario</h1>
     <TransparentCard>
-      <h3>Inventario</h3>
       <button class="btn btn-primary mb-3" @click="exportInventario">
         Exportar a Excel
       </button>
       <CategoryTable :columns="productColumns" :rows="inventarioRows" />
-    </TransparentCard>
-
-    <TransparentCard class="mt-4">
-      <h3>Ventas</h3>
-      <div class="row g-3 mb-3">
-        <div class="col-md-4">
-          <label class="form-label">Fecha inicio</label>
-          <input type="date" class="form-control" v-model="fechaInicio" />
-        </div>
-        <div class="col-md-4">
-          <label class="form-label">Fecha fin</label>
-          <input type="date" class="form-control" v-model="fechaFin" />
-        </div>
-        <div class="col-md-4 d-flex align-items-end">
-          <button class="btn btn-primary me-2" @click="exportVentas">Descargar Excel</button>
-        </div>
-      </div>
-      <CategoryTable :columns="ventaColumns" :rows="ventasRows" />
-      <CategoryTable :columns="productColumns" :rows="inventario" />
     </TransparentCard>
   </div>
 </template>
