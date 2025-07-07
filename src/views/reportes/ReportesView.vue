@@ -10,6 +10,9 @@ import tallaService, { type Talla } from '@/api/tallaService'
 import estadoService, { type Estado } from '@/api/estadoService'
 import pedidoService, { type Pedido } from '@/api/pedidoService'
 import correoPedidoService, { type CorreoPedido } from '@/api/correoPedidoService'
+import { ref, onMounted } from 'vue'
+import * as XLSX from 'xlsx'
+import productoService, { type Producto } from '@/api/productoService'
 import TransparentCard from '@/components/TransparentCard.vue'
 import CategoryTable from '@/components/CategoryTable.vue'
 
@@ -144,6 +147,14 @@ const productColumns: ColumnDef[] = [
   { key: 'fechaPedido', label: 'Fecha Pedido', type: 'date', sortable: true },
   { key: 'fechaLlegada', label: 'Fecha Llegada', type: 'date', sortable: true },
   { key: 'correoPedido', label: 'Correo', type: 'string', sortable: true },
+const inventario = ref<Producto[]>([])
+
+const productColumns: ColumnDef[] = [
+  { key: 'sku', label: 'SKU', type: 'string', sortable: true },
+  { key: 'nombreProducto', label: 'Nombre', type: 'string', sortable: true },
+  { key: 'precioCompra', label: 'Precio Compra', type: 'number' },
+  { key: 'precioVenta', label: 'Precio Venta', type: 'number' },
+  { key: 'idEstado', label: 'Estado', type: 'number' },
 ]
 
 onMounted(async () => {
@@ -206,6 +217,7 @@ onMounted(async () => {
         correoPedido: correoName,
       }
     })
+    inventario.value = await productoService.getAll()
   } catch (error) {
     console.error(error)
     alert('Error al cargar inventario')
@@ -231,6 +243,12 @@ function exportInventario() {
     FechaPedido: r.fechaPedido,
     FechaLlegada: r.fechaLlegada,
     Correo: r.correoPedido,
+  const data = inventario.value.map(p => ({
+    SKU: p.sku,
+    Nombre: p.nombreProducto,
+    PrecioCompra: p.precioCompra,
+    PrecioVenta: p.precioVenta,
+    Estado: p.idEstado,
   }))
   const ws = XLSX.utils.json_to_sheet(data)
   const wb = XLSX.utils.book_new()
@@ -266,6 +284,7 @@ function exportInventario() {
         </div>
       </div>
       <CategoryTable :columns="ventaColumns" :rows="ventasRows" />
+      <CategoryTable :columns="productColumns" :rows="inventario" />
     </TransparentCard>
   </div>
 </template>
