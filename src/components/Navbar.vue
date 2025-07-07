@@ -95,6 +95,9 @@
               </li>
             </ul>
           </li>
+          <li class="nav-item">
+            <router-link class="nav-link" to="/reportes">Reportes</router-link>
+          </li>
         </ul>
       </div>
     </div>
