@@ -22,6 +22,15 @@ function formatDate(d: string | Date | undefined) {
   if (!d) return ''
   const dateObj = typeof d === 'string' ? new Date(d) : d
   if (Number.isNaN(dateObj.getTime())) return ''
+  const year = dateObj.getFullYear()
+  const month = String(dateObj.getMonth() + 1).padStart(2, '0')
+  const day = String(dateObj.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+function parseDate(str: string) {
+  const [year, month, day] = str.split('-').map(Number)
+  return new Date(year, month - 1, day)
   const day = String(dateObj.getDate()).padStart(2, '0')
   const month = String(dateObj.getMonth() + 1).padStart(2, '0')
   const year = dateObj.getFullYear()
