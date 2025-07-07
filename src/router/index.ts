@@ -12,6 +12,7 @@ import GestionColoresView from '@/views/gestion/GestionColoresView.vue'
 import GestionTallasView from '@/views/gestion/GestionTallasView.vue'
 import GestionEstadosView from '@/views/gestion/GestionEstadosView.vue'
 import GestionCorreosPedidosView from '@/views/gestion/GestionCorreosPedidosView.vue'
+import ReportesView from '@/views/reportes/ReportesView.vue'
 
 const routes: Array<RouteRecordRaw> = [    
   { path: '/', name: 'home', component: HomeView, },
@@ -28,6 +29,7 @@ const routes: Array<RouteRecordRaw> = [
   { path: '/gestion/tallas', name: 'gestion-tallas', component: GestionTallasView },
   { path: '/gestion/estados', name: 'gestion-estados', component: GestionEstadosView },
   { path: '/gestion/correospedidos', name: 'gestion-correospedidos', component: GestionCorreosPedidosView },
+  { path: '/reportes', name: 'reportes', component: ReportesView },
 ];
 
 const router = createRouter({
