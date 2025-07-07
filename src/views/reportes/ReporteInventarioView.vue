@@ -52,7 +52,6 @@ const correos = ref<CorreoPedido[]>([])
 interface InventarioRow {
   idProducto: number
   nombreProducto: string
-  descripcion?: string
   sku?: string
   imagen?: string
   precioCompra: string
@@ -75,7 +74,6 @@ const inventarioRows = ref<InventarioRow[]>([])
 const productColumns: ColumnDef[] = [
   { key: 'idProducto', label: 'ID', type: 'number', sortable: true },
   { key: 'nombreProducto', label: 'Nombre', type: 'string', sortable: true },
-  { key: 'descripcion', label: 'Descripción', type: 'string' },
   { key: 'sku', label: 'SKU', type: 'string', sortable: true },
   { key: 'imagen', label: 'Imagen', type: 'string' },
   { key: 'precioCompra', label: 'Precio Compra', type: 'string', sortable: true },
@@ -136,11 +134,11 @@ onMounted(async () => {
       return {
         idProducto: p.idProducto,
         nombreProducto: p.nombreProducto,
-        descripcion: p.descripcion,
         sku: p.sku,
         imagen: p.imagen,
         precioCompra: formatCurrency(p.precioCompra),
-        precioSinDescuento: p.precioSinDescuento != null ? formatCurrency(p.precioSinDescuento) : '',
+        precioSinDescuento:
+          p.precioSinDescuento != null ? formatCurrency(p.precioSinDescuento) : '',
         precioVenta: formatCurrency(p.precioVenta),
         categoria: catMap[p.idCategoria] || '',
         subcategoria: subMap[p.idSubcategoria] || '',
@@ -164,7 +162,6 @@ function exportInventario() {
   const data = inventarioRows.value.map(r => ({
     ID: r.idProducto,
     Nombre: r.nombreProducto,
-    Descripcion: r.descripcion,
     SKU: r.sku,
     Imagen: r.imagen,
     PrecioCompra: r.precioCompra,

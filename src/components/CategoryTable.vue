@@ -131,7 +131,7 @@ function toggleSort(col: ColumnDef) {
 <style scoped>
 .table-container {
   border-radius: 8px;
-  overflow: hidden;
+  overflow: auto;
 }
 
 table thead {
