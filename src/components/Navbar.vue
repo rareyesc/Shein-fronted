@@ -95,8 +95,25 @@
               </li>
             </ul>
           </li>
-          <li class="nav-item">
-            <router-link class="nav-link" to="/reportes">Reportes</router-link>
+          <li class="nav-item dropdown">
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              id="navbarReportes"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              Reportes
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="navbarReportes">
+              <li>
+                <router-link class="dropdown-item" to="/reportes/inventario">Inventario</router-link>
+              </li>
+              <li>
+                <router-link class="dropdown-item" to="/reportes/ventas">Ventas</router-link>
+              </li>
+            </ul>
           </li>
         </ul>
       </div>
