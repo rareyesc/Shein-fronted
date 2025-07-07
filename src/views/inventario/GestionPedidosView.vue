@@ -31,6 +31,16 @@ function formatDate(d: string | Date | undefined) {
 function parseDate(str: string) {
   const [year, month, day] = str.split('-').map(Number)
   return new Date(year, month - 1, day)
+  const day = String(dateObj.getDate()).padStart(2, '0')
+  const month = String(dateObj.getMonth() + 1).padStart(2, '0')
+  const year = dateObj.getFullYear()
+  return `${day}-${month}-${year}`
+}
+
+function parseDate(str: string) {
+  const [day, month, year] = str.split('-').map(Number)
+  return new Date(year, month - 1, day)
+  return dateObj.toISOString().slice(0, 10)
 }
 
 function formatCurrency(n?: number) {
@@ -40,6 +50,10 @@ function formatCurrency(n?: number) {
     currency: 'COP',
     minimumFractionDigits: 0,
   }).format(n)
+}
+
+interface PedidoRow extends Pedido {
+  correoNombre: string
 }
 
 const showModal = ref(false)
@@ -67,6 +81,7 @@ const columns = [
   { key: 'fechaPedido' as const, label: 'Fecha Pedido', type: 'date' as const, sortable: true },
   { key: 'fechaLlegada' as const, label: 'Fecha Llegada', type: 'date' as const, sortable: true },
   { key: 'totalPedido' as const, label: 'Precio Pedido', type: 'string' as const, sortable: true },
+  { key: 'totalPedido' as const, label: 'Total', type: 'number' as const, sortable: true },
   { key: 'nota' as const, label: 'Nota', type: 'string' as const },
   { key: 'correoNombre' as const, label: 'Correo', type: 'string' as const, sortable: true },
 ]
@@ -187,6 +202,46 @@ function handleModify(ped: PedidoRow) {
     totalPedido: total,
     nota: ped.nota,
     idCorreoPedido: ped.idCorreoPedido,
+  const numero = prompt('Número del pedido:', ped.numeroPedido) || ped.numeroPedido
+  const fecha = prompt(
+    'Fecha del pedido (YYYY-MM-DD):',
+    new Date(ped.fechaPedido).toISOString().slice(0, 10),
+  ) || new Date(ped.fechaPedido).toISOString().slice(0, 10)
+  const llegada = prompt(
+    'Fecha llegada (YYYY-MM-DD):',
+    ped.fechaLlegada ? new Date(ped.fechaLlegada).toISOString().slice(0, 10) : '',
+  )
+  const totalStr = prompt('Precio del pedido:', ped.totalPedido ? ped.totalPedido.replace(/\D/g, '') : '')
+  const totalStr = prompt('Total del pedido:', ped.totalPedido?.toString() || '0')
+  const nota = prompt('Nota:', ped.nota ?? '') || ''
+  const correoIdStr = prompt('ID del correo pedido:', ped.idCorreoPedido.toString())
+
+  const payload: Pedido = {
+    idPedido: ped.idPedido,
+    numeroPedido: numero,
+    fechaPedido: new Date(fecha),
+    fechaLlegada: llegada ? new Date(llegada) : undefined,
+    totalPedido: totalStr ? parseFloat(totalStr) : undefined,
+    nota,
+    idCorreoPedido: correoIdStr ? parseInt(correoIdStr) : ped.idCorreoPedido,
+  }
+
+  if (!/^\d+$/.test(payload.numeroPedido)) {
+    openModal('Error', 'El número de pedido debe ser numérico.', 'danger')
+    return
+  }
+
+  if (payload.totalPedido !== undefined && payload.totalPedido < 0) {
+    openModal('Error', 'El precio no puede ser negativo.', 'danger')
+    return
+  }
+
+  if (
+    payload.fechaLlegada &&
+    payload.fechaLlegada < payload.fechaPedido
+  ) {
+    openModal('Error', 'La fecha de llegada no puede ser anterior a la del pedido.', 'danger')
+    return
   }
 
   pedidoService
@@ -197,6 +252,19 @@ function handleModify(ped: PedidoRow) {
         rows.value[idx].totalPedido = formatCurrency(total)
       }
       openModal('¡Éxito!', 'Precio actualizado.', 'success')
+    .then((updated) => {
+      const idx = rows.value.findIndex((p) => p.idPedido === ped.idPedido)
+      if (idx !== -1) {
+        rows.value[idx] = {
+          ...updated,
+          fechaPedido: formatDate(updated.fechaPedido),
+          fechaLlegada: formatDate(updated.fechaLlegada),
+          totalPedido: updated.totalPedido ? formatCurrency(updated.totalPedido) : '',
+          correoNombre:
+            correos.value.find((c) => c.idCorreoPedido === updated.idCorreoPedido)?.nombreCorreoPedido || '',
+        }
+      }
+      openModal('¡Éxito!', 'Pedido actualizado.', 'success')
     })
     .catch(() => {
       openModal('Error', 'No se pudo actualizar el pedido.', 'danger')
@@ -263,6 +331,21 @@ function handleDelete(ped: PedidoRow) {
           </div>
           <div class="col-md-4">
             <label class="form-label">Correo Pedido</label>
+            <input type="text" class="form-control" placeholder="Número" v-model="newPedido.numeroPedido" required />
+          </div>
+          <div class="col-md-4">
+            <input type="date" class="form-control" v-model="newPedido.fechaPedido" required />
+          </div>
+          <div class="col-md-4">
+            <input type="date" class="form-control" v-model="newPedido.fechaLlegada" />
+          </div>
+          <div class="col-md-4">
+            <input type="number" step="0.01" class="form-control" placeholder="Total" v-model.number="newPedido.totalPedido" />
+          </div>
+          <div class="col-md-4">
+            <input type="text" class="form-control" placeholder="Nota" v-model="newPedido.nota" />
+          </div>
+          <div class="col-md-4">
             <select class="form-select" v-model.number="newPedido.idCorreoPedido" required>
               <option value="0" disabled>Seleccione un correo</option>
               <option v-for="c in correos" :key="c.idCorreoPedido" :value="c.idCorreoPedido">{{ c.nombreCorreoPedido }}</option>
