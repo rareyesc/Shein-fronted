@@ -3,6 +3,7 @@ import HomeView from '@/views/HomeView.vue';
 import AboutView from '@/views/AboutView.vue';
 import InventarioListarView from '@/views/inventario/InventarioListarView.vue';
 import InventarioAgregarView from '@/views/inventario/InventarioAgregarView.vue';
+import GestionPedidosView from '@/views/inventario/GestionPedidosView.vue';
 import CategoryView from '@/views/category/CategoryView.vue'
 import GestionCategoriasView from '@/views/gestion/GestionCategoriasView.vue'
 import GestionSubcategoriasView from '@/views/gestion/GestionSubcategoriasView.vue'
@@ -18,6 +19,7 @@ const routes: Array<RouteRecordRaw> = [
 
   { path: '/inventario/listar', name: 'inventario-listar', component: InventarioListarView, },
   { path: '/inventario/agregar', name: 'inventario-agregar', component: InventarioAgregarView, },
+  { path: '/inventario/pedidos', name: 'inventario-pedidos', component: GestionPedidosView, },
   { path: '/categories', name: 'categories', component: CategoryView, },
   { path: '/gestion/categorias', name: 'gestion-categorias', component: GestionCategoriasView, },
   { path: '/gestion/subcategorias', name: 'gestion-subcategorias', component: GestionSubcategoriasView, },
