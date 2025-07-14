@@ -7,7 +7,7 @@ export const useModalStore = defineStore('modal', {
     message: '',
     type: 'info' as 'success' | 'danger' | 'warning' | 'info',
     mode: 'alert' as 'alert' | 'confirm' | 'prompt',
-    resolve: ((value: any) => {}) as (value: any) => void,
+    resolve: ((_value: any) => {}) as (value: any) => void,
     inputValue: ''
   }),
   actions: {
