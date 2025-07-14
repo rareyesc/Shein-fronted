@@ -7,6 +7,7 @@ import GestionColoresView from './gestion/GestionColoresView.vue'
 import GestionTallasView from './gestion/GestionTallasView.vue'
 import GestionEstadosView from './gestion/GestionEstadosView.vue'
 import GestionCorreosPedidosView from './gestion/GestionCorreosPedidosView.vue'
+import TransparentCard from '@/components/TransparentCard.vue'
 
 interface Module {
   key: string
@@ -47,5 +48,9 @@ function selectModule(mod: Module) {
     </div>
 
     <component v-if="selected" :is="selected.component" />
+    <TransparentCard v-else class="text-center py-5">
+      <h3 class="mb-3">Control y Gestión de Inventario</h3>
+      <p>Seleccione un módulo para actualizar</p>
+    </TransparentCard>
   </div>
 </template>
