@@ -5,7 +5,10 @@ import correoPedidoService, { type CorreoPedido } from '@/api/correoPedidoServic
 
 import CategoryTable from '@/components/CategoryTable.vue'
 import TransparentCard from '@/components/TransparentCard.vue'
+import { useModalStore } from '@/stores/modalStore'
 import ModalAlert from '@/components/ModalAlert.vue'
+
+const modal = useModalStore()
 
 // Define row type separately from Pedido
 type PedidoRow = Omit<Pedido, 'fechaPedido' | 'fechaLlegada' | 'totalPedido'> & {
@@ -182,20 +185,11 @@ async function addPedido() {
   }
 }
 
-function handleModify(ped: PedidoRow) {
-  const num = prompt('Número del pedido:', ped.numeroPedido) || ped.numeroPedido
-  const fechaStr = prompt(
-    'Fecha del pedido (dd-mm-aaaa):',
-    ped.fechaPedido
-  ) || ped.fechaPedido
-  const llegadaStr = prompt(
-    'Fecha llegada (dd-mm-aaaa):',
-    ped.fechaLlegada || ''
-  ) || ''
-  const precioInput = prompt(
-    'Precio del pedido (solo números):',
-    ped.totalPedido?.replace(/\D/g, '') || '0'
-  ) || '0'
+async function handleModify(ped: PedidoRow) {
+  const num = await modal.prompt('Editar', 'Número del pedido:', ped.numeroPedido) || ped.numeroPedido
+  const fechaStr = await modal.prompt('Editar', 'Fecha del pedido (dd-mm-aaaa):', ped.fechaPedido) || ped.fechaPedido
+  const llegadaStr = await modal.prompt('Editar', 'Fecha llegada (dd-mm-aaaa):', ped.fechaLlegada || '') || ''
+  const precioInput = await modal.prompt('Editar', 'Precio del pedido (solo números):', ped.totalPedido?.replace(/\\D/g, '') || '0') || '0'
   const precioNum = parseFloat(precioInput)
   if (isNaN(precioNum) || precioNum < 0) {
     openModal('Error', 'Precio inválido.', 'danger')
@@ -233,8 +227,9 @@ function handleModify(ped: PedidoRow) {
     })
 }
 
-function handleDelete(ped: PedidoRow) {
-  if (!confirm(`¿Eliminar el pedido "${ped.numeroPedido}"?`)) return
+async function handleDelete(ped: PedidoRow) {
+  const confirmDelete = await modal.confirm('Confirmar', `¿Eliminar el pedido "${ped.numeroPedido}"?`, 'warning')
+  if (!confirmDelete) return
   pedidoService
     .remove(ped.idPedido)
     .then(() => {

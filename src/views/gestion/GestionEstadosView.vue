@@ -4,26 +4,12 @@ import estadoService, { Estado } from '@/api/estadoService'
 
 import CategoryTable from '@/components/CategoryTable.vue'
 import TransparentCard from '@/components/TransparentCard.vue'
-import ModalAlert from '@/components/ModalAlert.vue'
+import { useModalStore } from '@/stores/modalStore'
 
-const showModal = ref(false)
-const modalTitle = ref('')
-const modalMessage = ref('')
-const modalType = ref<'success' | 'danger' | 'warning' | 'info'>('info')
+const modal = useModalStore()
 
-function openModal(
-  title: string,
-  message: string,
-  type: 'success' | 'danger' | 'warning' | 'info',
-) {
-  modalTitle.value = title
-  modalMessage.value = message
-  modalType.value = type
-  showModal.value = true
-}
-
-function handleClose() {
-  showModal.value = false
+function openModal(title: string, message: string, type: 'success' | 'danger' | 'warning' | 'info') {
+  modal.alert(title, message, type)
 }
 
 const columns = [
@@ -63,8 +49,8 @@ async function addEstado() {
   }
 }
 
-function handleModify(est: Estado) {
-  const newName = prompt('Nuevo nombre del estado:', est.nombreEstado)
+async function handleModify(est: Estado) {
+  const newName = await modal.prompt('Editar', 'Nuevo nombre del estado:', est.nombreEstado)
   if (!newName || !newName.trim()) return
 
   estadoService
@@ -79,8 +65,8 @@ function handleModify(est: Estado) {
     })
 }
 
-function handleDelete(est: Estado) {
-  const confirmDelete = confirm(`¿Eliminar el estado "${est.nombreEstado}"?`)
+async function handleDelete(est: Estado) {
+  const confirmDelete = await modal.confirm('Confirmar', `¿Eliminar el estado "${est.nombreEstado}"?`, 'warning')
   if (!confirmDelete) return
 
   estadoService
@@ -130,12 +116,5 @@ function handleDelete(est: Estado) {
       </div>
     </TransparentCard>
 
-    <ModalAlert
-      :show="showModal"
-      :title="modalTitle"
-      :message="modalMessage"
-      :type="modalType"
-      @close="handleClose"
-    />
   </div>
 </template>

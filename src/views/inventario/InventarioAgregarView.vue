@@ -11,6 +11,9 @@ import estadoService from '@/api/estadoService'
 import pedidoService from '@/api/pedidoService'
 import productoService from '@/api/productoService'
 import TransparentCard from '@/components/TransparentCard.vue'
+import { useModalStore } from '@/stores/modalStore'
+
+const modal = useModalStore()
 
 // 2) Ajusta la interfaz para manejar el File
 interface ProductoForm {
@@ -91,7 +94,7 @@ onMounted(async () => {
     pedidos.value = pedData
   } catch (error) {
     console.error(error)
-    alert('Error al cargar datos de microservicios')
+    modal.alert('Error', 'Error al cargar datos de microservicios', 'danger')
   }
 })
 
@@ -136,7 +139,7 @@ const agregarProducto = async () => {
 
     // Llamamos al microservicio
     const created = await productoService.createProduct(formData)
-    alert('Producto agregado correctamente')
+    modal.alert('Éxito', 'Producto agregado correctamente', 'success')
     console.log('Producto creado:', created)
 
     // Resetear formulario
@@ -158,7 +161,7 @@ const agregarProducto = async () => {
     }
   } catch (error) {
     console.error(error)
-    alert('Error al agregar producto')
+    modal.alert('Error', 'Error al agregar producto', 'danger')
   }
 }
   function autoResize(event: Event) {

@@ -4,26 +4,12 @@ import colorService, { Color } from '@/api/colorService'
 
 import CategoryTable from '@/components/CategoryTable.vue'
 import TransparentCard from '@/components/TransparentCard.vue'
-import ModalAlert from '@/components/ModalAlert.vue'
+import { useModalStore } from '@/stores/modalStore'
 
-const showModal = ref(false)
-const modalTitle = ref('')
-const modalMessage = ref('')
-const modalType = ref<'success' | 'danger' | 'warning' | 'info'>('info')
+const modal = useModalStore()
 
-function openModal(
-  title: string,
-  message: string,
-  type: 'success' | 'danger' | 'warning' | 'info',
-) {
-  modalTitle.value = title
-  modalMessage.value = message
-  modalType.value = type
-  showModal.value = true
-}
-
-function handleClose() {
-  showModal.value = false
+function openModal(title: string, message: string, type: 'success' | 'danger' | 'warning' | 'info') {
+  modal.alert(title, message, type)
 }
 
 const columns = [
@@ -63,8 +49,8 @@ async function addColor() {
   }
 }
 
-function handleModify(col: Color) {
-  const newName = prompt('Nuevo nombre del color:', col.nombreColor)
+async function handleModify(col: Color) {
+  const newName = await modal.prompt('Editar', 'Nuevo nombre del color:', col.nombreColor)
   if (!newName || !newName.trim()) return
 
   colorService
@@ -79,8 +65,8 @@ function handleModify(col: Color) {
     })
 }
 
-function handleDelete(col: Color) {
-  const confirmDelete = confirm(`¿Eliminar el color "${col.nombreColor}"?`)
+async function handleDelete(col: Color) {
+  const confirmDelete = await modal.confirm('Confirmar', `¿Eliminar el color "${col.nombreColor}"?`, 'warning')
   if (!confirmDelete) return
 
   colorService
@@ -130,12 +116,5 @@ function handleDelete(col: Color) {
       </div>
     </TransparentCard>
 
-    <ModalAlert
-      :show="showModal"
-      :title="modalTitle"
-      :message="modalMessage"
-      :type="modalType"
-      @close="handleClose"
-    />
   </div>
 </template>

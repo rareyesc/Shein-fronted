@@ -4,26 +4,12 @@ import correoPedidoService, { CorreoPedido } from '@/api/correoPedidoService'
 
 import CategoryTable from '@/components/CategoryTable.vue'
 import TransparentCard from '@/components/TransparentCard.vue'
-import ModalAlert from '@/components/ModalAlert.vue'
+import { useModalStore } from '@/stores/modalStore'
 
-const showModal = ref(false)
-const modalTitle = ref('')
-const modalMessage = ref('')
-const modalType = ref<'success' | 'danger' | 'warning' | 'info'>('info')
+const modal = useModalStore()
 
-function openModal(
-  title: string,
-  message: string,
-  type: 'success' | 'danger' | 'warning' | 'info',
-) {
-  modalTitle.value = title
-  modalMessage.value = message
-  modalType.value = type
-  showModal.value = true
-}
-
-function handleClose() {
-  showModal.value = false
+function openModal(title: string, message: string, type: 'success' | 'danger' | 'warning' | 'info') {
+  modal.alert(title, message, type)
 }
 
 const columns = [
@@ -63,8 +49,8 @@ async function addCorreo() {
   }
 }
 
-function handleModify(cor: CorreoPedido) {
-  const newName = prompt('Nuevo nombre del correo:', cor.nombreCorreoPedido)
+async function handleModify(cor: CorreoPedido) {
+  const newName = await modal.prompt('Editar', 'Nuevo nombre del correo:', cor.nombreCorreoPedido)
   if (!newName || !newName.trim()) return
 
   correoPedidoService
@@ -79,8 +65,8 @@ function handleModify(cor: CorreoPedido) {
     })
 }
 
-function handleDelete(cor: CorreoPedido) {
-  const confirmDelete = confirm(`¿Eliminar el correo "${cor.nombreCorreoPedido}"?`)
+async function handleDelete(cor: CorreoPedido) {
+  const confirmDelete = await modal.confirm('Confirmar', `¿Eliminar el correo "${cor.nombreCorreoPedido}"?`, 'warning')
   if (!confirmDelete) return
 
   correoPedidoService
@@ -130,12 +116,5 @@ function handleDelete(cor: CorreoPedido) {
       </div>
     </TransparentCard>
 
-    <ModalAlert
-      :show="showModal"
-      :title="modalTitle"
-      :message="modalMessage"
-      :type="modalType"
-      @close="handleClose"
-    />
   </div>
 </template>

@@ -4,6 +4,9 @@ import * as XLSX from 'xlsx'
 import productoService, { type Producto } from '@/api/productoService'
 import TransparentCard from '@/components/TransparentCard.vue'
 import CategoryTable from '@/components/CategoryTable.vue'
+import { useModalStore } from '@/stores/modalStore'
+
+const modal = useModalStore()
 
 interface ColumnDef {
   key: string
@@ -78,7 +81,7 @@ onMounted(async () => {
     inventario.value = await productoService.getAll()
   } catch (error) {
     console.error(error)
-    alert('Error al cargar ventas')
+    modal.alert('Error', 'Error al cargar ventas', 'danger')
   }
 })
 

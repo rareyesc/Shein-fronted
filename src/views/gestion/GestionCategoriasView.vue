@@ -5,27 +5,12 @@ import categoryService, { Categoria } from '@/api/categoryService'
 // Componentes
 import CategoryTable from '@/components/CategoryTable.vue'
 import TransparentCard from '@/components/TransparentCard.vue'
-import ModalAlert from '@/components/ModalAlert.vue'
+import { useModalStore } from '@/stores/modalStore'
 
-// Estado del modal
-const showModal = ref(false)
-const modalTitle = ref('')
-const modalMessage = ref('')
-const modalType = ref<'success' | 'danger' | 'warning' | 'info'>('info')
+const modal = useModalStore()
 
-// Funciones del modal
-function openModal(
-  title: string,
-  message: string,
-  type: 'success' | 'danger' | 'warning' | 'info'
-) {
-  modalTitle.value = title
-  modalMessage.value = message
-  modalType.value = type
-  showModal.value = true
-}
-function handleClose() {
-  showModal.value = false
+function openModal(title: string, message: string, type: 'success' | 'danger' | 'warning' | 'info') {
+  modal.alert(title, message, type)
 }
 
 /**
@@ -80,8 +65,8 @@ async function addCategory() {
  * handleModify y handleDelete deben recibir un cat: Categoria
  * => coincide con CategoryTable.vue, que emite (e: 'modify', cat: Categoria)
  */
-function handleModify(cat: Categoria) {
-  const newName = prompt('Nuevo nombre de la categoría:', cat.nombreCategoria)
+async function handleModify(cat: Categoria) {
+  const newName = await modal.prompt('Editar', 'Nuevo nombre de la categoría:', cat.nombreCategoria)
   if (!newName || !newName.trim()) return
 
   categoryService
@@ -99,8 +84,8 @@ function handleModify(cat: Categoria) {
     })
 }
 
-function handleDelete(cat: Categoria) {
-  const confirmDelete = confirm(`¿Eliminar la categoría "${cat.nombreCategoria}"?`)
+async function handleDelete(cat: Categoria) {
+  const confirmDelete = await modal.confirm('Confirmar', `¿Eliminar la categoría "${cat.nombreCategoria}"?`, 'warning')
   if (!confirmDelete) return
 
   categoryService
@@ -152,14 +137,6 @@ function handleDelete(cat: Categoria) {
       </div>
     </TransparentCard>
 
-    <!-- Modal Alertas -->
-    <ModalAlert
-      :show="showModal"
-      :title="modalTitle"
-      :message="modalMessage"
-      :type="modalType"
-      @close="handleClose"
-    />
   </div>
 </template>
 

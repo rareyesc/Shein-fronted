@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import categoryService, { Categoria } from '@/api/categoryService'
+import { useModalStore } from '@/stores/modalStore'
+
+const modal = useModalStore()
 
 // Estado local para las categorías
 const categories = ref<Categoria[]>([])
@@ -15,7 +18,7 @@ onMounted(async () => {
     categories.value = result
   } catch (error) {
     console.error('Error al obtener categorías:', error)
-    alert('No se pudieron cargar las categorías')
+    modal.alert('Error', 'No se pudieron cargar las categorías', 'danger')
   }
 })
 
@@ -30,10 +33,10 @@ const addCategory = async () => {
     categories.value.push(createdCat)
     // Limpiar el input
     newCategoryName.value = ''
-    alert('Categoría creada con éxito')
+    modal.alert('Éxito', 'Categoría creada con éxito', 'success')
   } catch (error) {
     console.error('Error al crear la categoría:', error)
-    alert('No se pudo crear la categoría')
+    modal.alert('Error', 'No se pudo crear la categoría', 'danger')
   }
 }
 </script>

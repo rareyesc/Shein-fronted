@@ -5,29 +5,12 @@ import generoService, { Genero } from "@/api/generoService";
 // Reutilizamos “CategoryTable” como tabla genérica
 import CategoryTable from "@/components/CategoryTable.vue";
 import TransparentCard from "@/components/TransparentCard.vue";
-import ModalAlert from "@/components/ModalAlert.vue";
+import { useModalStore } from '@/stores/modalStore'
 
-/**
- * ESTADO PARA EL MODAL
- */
-const showModal = ref(false);
-const modalTitle = ref("");
-const modalMessage = ref("");
-const modalType = ref<"success" | "danger" | "warning" | "info">("info");
+const modal = useModalStore()
 
-function openModal(
-  title: string,
-  message: string,
-  type: "success" | "danger" | "warning" | "info",
-) {
-  modalTitle.value = title;
-  modalMessage.value = message;
-  modalType.value = type;
-  showModal.value = true;
-}
-
-function handleClose() {
-  showModal.value = false;
+function openModal(title: string, message: string, type: 'success' | 'danger' | 'warning' | 'info') {
+  modal.alert(title, message, type)
 }
 
 /**
@@ -97,9 +80,9 @@ async function addGenero() {
  * MANEJAR MODIFICAR
  * => prompt sencillo
  */
-function handleModify(gen: Genero) {
-  const newName = prompt("Nuevo nombre del género:", gen.nombreGenero);
-  if (!newName || !newName.trim()) return;
+async function handleModify(gen: Genero) {
+  const newName = await modal.prompt('Editar', 'Nuevo nombre del género:', gen.nombreGenero)
+  if (!newName || !newName.trim()) return
 
   generoService
     .update(gen.idGenero, {
@@ -120,9 +103,9 @@ function handleModify(gen: Genero) {
 /**
  * MANEJAR ELIMINAR
  */
-function handleDelete(gen: Genero) {
-  const confirmDelete = confirm(`¿Eliminar el género "${gen.nombreGenero}"?`);
-  if (!confirmDelete) return;
+async function handleDelete(gen: Genero) {
+  const confirmDelete = await modal.confirm('Confirmar', `¿Eliminar el género "${gen.nombreGenero}"?`, 'warning')
+  if (!confirmDelete) return
 
   generoService
     .remove(gen.idGenero)
@@ -173,13 +156,5 @@ function handleDelete(gen: Genero) {
       </div>
     </TransparentCard>
 
-    <!-- Modal de alertas -->
-    <ModalAlert
-      :show="showModal"
-      :title="modalTitle"
-      :message="modalMessage"
-      :type="modalType"
-      @close="handleClose"
-    />
   </div>
 </template>
