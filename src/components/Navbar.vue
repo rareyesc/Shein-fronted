@@ -67,33 +67,8 @@
             </ul>
           </li>
           <!-- Nueva sección: Gestión -->
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarGestion" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Gestión
-            </a>
-            <ul class="dropdown-menu" aria-labelledby="navbarGestion">
-              <li>
-                <router-link class="dropdown-item" to="/gestion/categorias">Categorías</router-link>
-              </li>
-              <li>
-                <router-link class="dropdown-item" to="/gestion/subcategorias">Sub-Categorías</router-link>
-              </li>
-              <li>
-                <router-link class="dropdown-item" to="/gestion/generos">Géneros</router-link>
-              </li>
-              <li>
-                <router-link class="dropdown-item" to="/gestion/colores">Colores</router-link>
-              </li>
-              <li>
-                <router-link class="dropdown-item" to="/gestion/tallas">Tallas</router-link>
-              </li>
-              <li>
-                <router-link class="dropdown-item" to="/gestion/estados">Estados</router-link>
-              </li>
-              <li>
-                <router-link class="dropdown-item" to="/gestion/correospedidos">Correos Pedidos</router-link>
-              </li>
-            </ul>
+          <li class="nav-item">
+            <router-link class="nav-link" to="/gestion">Gestión</router-link>
           </li>
           <li class="nav-item dropdown">
             <a

@@ -12,6 +12,7 @@ import GestionColoresView from '@/views/gestion/GestionColoresView.vue'
 import GestionTallasView from '@/views/gestion/GestionTallasView.vue'
 import GestionEstadosView from '@/views/gestion/GestionEstadosView.vue'
 import GestionCorreosPedidosView from '@/views/gestion/GestionCorreosPedidosView.vue'
+import GestionView from '@/views/GestionView.vue'
 import ReporteInventarioView from '@/views/reportes/ReporteInventarioView.vue'
 import ReporteVentasView from '@/views/reportes/ReporteVentasView.vue'
 
@@ -23,6 +24,7 @@ const routes: Array<RouteRecordRaw> = [
   { path: '/inventario/agregar', name: 'inventario-agregar', component: InventarioAgregarView, },
   { path: '/inventario/pedidos', name: 'inventario-pedidos', component: GestionPedidosView, },
   { path: '/categories', name: 'categories', component: CategoryView, },
+  { path: '/gestion', name: 'gestion', component: GestionView },
   { path: '/gestion/categorias', name: 'gestion-categorias', component: GestionCategoriasView, },
   { path: '/gestion/subcategorias', name: 'gestion-subcategorias', component: GestionSubcategoriasView, },
   { path: '/gestion/generos', name: 'gestion-generos', component: GestionGenerosView },
