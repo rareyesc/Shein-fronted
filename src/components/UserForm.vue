@@ -32,6 +32,9 @@ function validatePassword() {
 watch(name, validateName, { immediate: true })
 watch(email, validateEmail, { immediate: true })
 watch(password, validatePassword, { immediate: true })
+watch(name, validateName)
+watch(email, validateEmail)
+watch(password, validatePassword)
 
 function handleSubmit() {
   validateName()
