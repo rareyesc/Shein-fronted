@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
+import { useModalStore } from '@/stores/modalStore'
 import productoService, { type Producto } from '@/api/productoService'
 import categoryService, { type Categoria } from '@/api/categoryService'
 import subcategoriaService, { type Subcategoria } from '@/api/subcategoriaService'
@@ -19,6 +20,8 @@ const colores = ref<Color[]>([])
 const tallas = ref<Talla[]>([])
 const estados = ref<Estado[]>([])
 const pedidos = ref<Pedido[]>([])
+
+const modal = useModalStore()
 
 const filtros = ref({
   idCategoria: 0,
@@ -53,7 +56,7 @@ onMounted(async () => {
     pedidos.value = peds
   } catch (error) {
     console.error(error)
-    alert('Error al cargar datos')
+    modal.alert('Error', 'Error al cargar datos', 'danger')
   }
 })
 

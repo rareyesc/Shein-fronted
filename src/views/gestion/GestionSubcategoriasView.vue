@@ -7,23 +7,13 @@ import subcategoriaService, { Subcategoria } from '@/api/subcategoriaService'
 import categoryService, { Categoria } from '@/api/categoryService'
 
 // Opcional: ModalAlert y TransparentCard si los usas para tu diseño
-import ModalAlert from '@/components/ModalAlert.vue'
+import { useModalStore } from '@/stores/modalStore'
 import TransparentCard from '@/components/TransparentCard.vue'
 
-// Estado del modal
-const showModal = ref(false)
-const modalTitle = ref('')
-const modalMessage = ref('')
-const modalType = ref<'success' | 'danger' | 'warning' | 'info'>('info')
+const modal = useModalStore()
 
 function openModal(title: string, message: string, type: 'success' | 'danger' | 'warning' | 'info') {
-  modalTitle.value = title
-  modalMessage.value = message
-  modalType.value = type
-  showModal.value = true
-}
-function handleClose() {
-  showModal.value = false
+  modal.alert(title, message, type)
 }
 
 // Lista de categorías (para el dropdown)
@@ -79,7 +69,7 @@ async function addSubcategoria() {
 // Modificar subcategoría (prompt sencillo)
 async function modifySubcat(subcat: Subcategoria) {
   // Podrías usar un modal si prefieres
-  const newName = prompt('Nuevo nombre de la subcategoría:', subcat.nombreSubcategoria)
+  const newName = await modal.prompt('Editar', 'Nuevo nombre de la subcategoría:', subcat.nombreSubcategoria)
   if (!newName || !newName.trim()) return // Cancelado
 
   try {
@@ -101,7 +91,7 @@ async function modifySubcat(subcat: Subcategoria) {
 
 // Eliminar subcategoría
 async function deleteSubcat(subcat: Subcategoria) {
-  const confirmDelete = confirm(`¿Eliminar la subcategoría "${subcat.nombreSubcategoria}"?`)
+  const confirmDelete = await modal.confirm('Confirmar', `¿Eliminar la subcategoría "${subcat.nombreSubcategoria}"?`, 'warning')
   if (!confirmDelete) return
 
   try {
@@ -186,14 +176,6 @@ async function deleteSubcat(subcat: Subcategoria) {
       </div>
     </TransparentCard>
 
-    <!-- Modal para alertas -->
-    <ModalAlert
-      :show="showModal"
-      :title="modalTitle"
-      :message="modalMessage"
-      :type="modalType"
-      @close="handleClose"
-    />
   </div>
 </template>
 

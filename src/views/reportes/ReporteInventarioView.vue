@@ -12,6 +12,9 @@ import pedidoService, { type Pedido } from '@/api/pedidoService'
 import correoPedidoService, { type CorreoPedido } from '@/api/correoPedidoService'
 import TransparentCard from '@/components/TransparentCard.vue'
 import CategoryTable from '@/components/CategoryTable.vue'
+import { useModalStore } from '@/stores/modalStore'
+
+const modal = useModalStore()
 
 interface ColumnDef {
   key: string
@@ -154,7 +157,7 @@ onMounted(async () => {
     })
   } catch (error) {
     console.error(error)
-    alert('Error al cargar inventario')
+    modal.alert('Error', 'Error al cargar inventario', 'danger')
   }
 })
 

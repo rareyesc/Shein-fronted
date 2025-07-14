@@ -4,26 +4,12 @@ import tallaService, { Talla } from '@/api/tallaService'
 
 import CategoryTable from '@/components/CategoryTable.vue'
 import TransparentCard from '@/components/TransparentCard.vue'
-import ModalAlert from '@/components/ModalAlert.vue'
+import { useModalStore } from '@/stores/modalStore'
 
-const showModal = ref(false)
-const modalTitle = ref('')
-const modalMessage = ref('')
-const modalType = ref<'success' | 'danger' | 'warning' | 'info'>('info')
+const modal = useModalStore()
 
-function openModal(
-  title: string,
-  message: string,
-  type: 'success' | 'danger' | 'warning' | 'info',
-) {
-  modalTitle.value = title
-  modalMessage.value = message
-  modalType.value = type
-  showModal.value = true
-}
-
-function handleClose() {
-  showModal.value = false
+function openModal(title: string, message: string, type: 'success' | 'danger' | 'warning' | 'info') {
+  modal.alert(title, message, type)
 }
 
 const columns = [
@@ -63,8 +49,8 @@ async function addTalla() {
   }
 }
 
-function handleModify(tal: Talla) {
-  const newName = prompt('Nuevo nombre de la talla:', tal.nombreTalla)
+async function handleModify(tal: Talla) {
+  const newName = await modal.prompt('Editar', 'Nuevo nombre de la talla:', tal.nombreTalla)
   if (!newName || !newName.trim()) return
 
   tallaService
@@ -79,8 +65,8 @@ function handleModify(tal: Talla) {
     })
 }
 
-function handleDelete(tal: Talla) {
-  const confirmDelete = confirm(`¿Eliminar la talla "${tal.nombreTalla}"?`)
+async function handleDelete(tal: Talla) {
+  const confirmDelete = await modal.confirm('Confirmar', `¿Eliminar la talla "${tal.nombreTalla}"?`, 'warning')
   if (!confirmDelete) return
 
   tallaService
@@ -130,12 +116,5 @@ function handleDelete(tal: Talla) {
       </div>
     </TransparentCard>
 
-    <ModalAlert
-      :show="showModal"
-      :title="modalTitle"
-      :message="modalMessage"
-      :type="modalType"
-      @close="handleClose"
-    />
   </div>
 </template>
