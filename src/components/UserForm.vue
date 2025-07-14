@@ -29,6 +29,9 @@ function validatePassword() {
       : 'La contraseña debe tener al menos 6 caracteres'
 }
 
+watch(name, validateName, { immediate: true })
+watch(email, validateEmail, { immediate: true })
+watch(password, validatePassword, { immediate: true })
 watch(name, validateName)
 watch(email, validateEmail)
 watch(password, validatePassword)
